@@ -202,7 +202,7 @@ NN.FeedForwardNN.prototype.backward = function(outputs) {
 
 };
 
-var xor = function() {
+(function() {
 
 	var options = {};
 	
@@ -235,6 +235,4 @@ var xor = function() {
 	console.log(nn.forward([1, 0]));
 	console.log(nn.forward([0, 0]));	
 
-};
-
-xor();
+})();
