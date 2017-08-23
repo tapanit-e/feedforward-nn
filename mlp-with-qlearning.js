@@ -47,10 +47,10 @@ NN.FeedForwardNN = function(args) {
 	this.activationInputs = [],
 	this.activationHiddens = [],
 	this.activationOutputs = [],
-	this.weightInputs 	= [],
-	this.weightOutputs 	= [],
-	this.changeInputs 	= [], 
-	this.changeOutputs 	= [];
+	this.weightInputs = [],
+	this.weightOutputs = [],
+	this.changeInputs = [], 
+	this.changeOutputs = [];
 
 	this.__initNet();
 
