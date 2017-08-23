@@ -1,3 +1,5 @@
+'use strict';
+
 var NN = NN || {};
 
 NN.Helper = {};
