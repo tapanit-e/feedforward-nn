@@ -217,7 +217,7 @@ NN.QLearning = function(args) {
 NN.QLearning.prototype.argMax = function(list) {
 
 	var max = list[0],
-		index = 0;
+	    index = 0;
 	
 	for (var i = 1; i < list.length; i++) {
 	
