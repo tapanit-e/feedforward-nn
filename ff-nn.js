@@ -41,14 +41,16 @@ NN.FeedForwardNN = function(args) {
 	this.numOfOutputs = NN.Helper.getOption(args, 'output', 1);
 	
 	this.isQ = NN.Helper.getOption(args, 'isQ', false);
+	
+	console.log(this.isQ);
 
 	this.activationInputs = [],
 	this.activationHiddens = [],
 	this.activationOutputs = [],
-	this.weightInputs = [],
-	this.weightOutputs = [],
-	this.changeInputs = [], 
-	this.changeOutputs = [];
+	this.weightInputs 	= [],
+	this.weightOutputs 	= [],
+	this.changeInputs 	= [], 
+	this.changeOutputs 	= [];
 
 	this.__initNet();
 
@@ -296,29 +298,42 @@ NN.QLearning.prototype.learn = function(reward) {
 	var x = 0;
 	var y = 0;
 	
+	var destX = 0.7;
+	var destY = 0.7;
+	
 	var q = new NN.QLearning(options);
 	
 	var totalReward = 0;
 	
-	for (var i = 0; i < 1000; i++) {
+	for (var i = 0; i < 10000; i++) {
 	
 		var action = q.act([x, y]);
 		var reward;
 		
+		var curX = x;
+		var curY = y;
+		
 		switch (action) {
 		
-			case 0: reward = -1; x += 0.01; y += 0.01; break;
-			case 1: reward = -1; x += 0.01; y -= 0.01; break;
-			case 2: reward = -1; x -= 0.01; y += 0.01; break;
-			case 3: reward = 1; x -= 0.01; y -= 0.01; break; 
+			case 0: x += 0.01; y += 0.01; break;
+			case 1: x += 0.01; y -= 0.01; break;
+			case 2: x -= 0.01; y += 0.01; break;
+			case 3: x -= 0.01; y -= 0.01; break; 
 		
 		}
+		
+		if (Math.abs(x - destX) <= Math.abs(curX - destX) && Math.abs(y - destY) <= Math.abs(curY - destY))
+			reward = 1;
+		else
+			reward = -1;
 		
 		totalReward += reward;
 		
 		q.learn(reward);
 	
 	}
+	
+	console.log(x + ' ' + y);
 	
 	console.log(totalReward);
 
