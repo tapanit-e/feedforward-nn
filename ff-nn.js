@@ -39,14 +39,16 @@ NN.FeedForwardNN = function(args) {
 	this.numOfHiddenUnits = NN.Helper.getOption(args, 'hiddenUnits', 3);
 	this.numOfInputs = NN.Helper.getOption(args, 'input', 2) + 1;
 	this.numOfOutputs = NN.Helper.getOption(args, 'output', 1);
+	
+	this.isQ = NN.Helper.getOption(args, 'isQ', false);
 
 	this.activationInputs = [],
 	this.activationHiddens = [],
 	this.activationOutputs = [],
-	this.weightInputs = [],
-	this.weightOutputs = [],
-	this.changeInputs = [], 
-	this.changeOutputs = [];
+	this.weightInputs 	= [],
+	this.weightOutputs 	= [],
+	this.changeInputs 	= [], 
+	this.changeOutputs 	= [];
 
 	this.__initNet();
 
@@ -70,7 +72,7 @@ NN.FeedForwardNN.prototype.__initNet = function() {
 		this.weightInputs.push(arr);
 
 		for (var j = 0; j < this.numOfHiddenUnits; j++)
-			this.weightInputs[i][j] = NN.Helper.getRandom(-2, 2);
+			this.weightInputs[i][j] = this.isQ ? 0.01 * NN.Helper.getRandom(-2, 2) : NN.Helper.getRandom(-2, 2);
 
 	}
 
@@ -80,7 +82,7 @@ NN.FeedForwardNN.prototype.__initNet = function() {
 		this.weightOutputs.push(arr);
 
 		for (var j = 0; j < this.numOfOutputs; j++)
-			this.weightOutputs[i][j] = NN.Helper.getRandom(-2, 2);
+			this.weightOutputs[i][j] = this.isQ ? 0.01 * NN.Helper.getRandom(-2, 2) : NN.Helper.getRandom(-2, 2);
 
 	}
 
@@ -204,6 +206,124 @@ NN.FeedForwardNN.prototype.backward = function(outputs) {
 
 };
 
+NN.QLearning = function(args) {
+
+	this.epsilon = NN.Helper.getOption(args, 'epsilon', 0.1);
+	this.gamma = NN.Helper.getOption(args, 'gamma', 0.5);
+	this.nn = new NN.FeedForwardNN(args);
+
+};
+
+NN.QLearning.prototype.argMax = function(list) {
+
+	var max = list[0],
+		index = 0;
+	
+	for (var i = 1; i < list.length; i++) {
+	
+		if (list[i] > max) {
+			
+			max = list[i];
+			index = i;
+		
+		}
+		
+	}
+			
+	return index;
+
+};
+
+NN.QLearning.prototype.randomIndex = function(list) {
+
+	return Math.floor(Math.random() * list.length);
+
+};
+
+NN.QLearning.prototype.act = function(state) {
+
+	if (Math.random() < this.epsilon) {
+	
+		var action = this.randomIndex(state);
+	
+	} else {
+
+		var actions = this.nn.forward(state);
+		var action = this.argMax(actions);
+	
+	}
+	
+	this.previousState = this.currentState;
+	this.previousAction = this.currentAction;
+	this.currentAction = action;
+	this.currentState = state;
+	
+	return action;
+
+};
+
+NN.QLearning.prototype.learn = function(reward) {
+
+	if ('undefined' !== typeof this.currentReward) {
+
+		var actions = this.nn.forward(this.currentState);
+		var qValue = this.currentReward + this.gamma * this.nn.activationOutputs[this.argMax(actions)];
+		var predicts = this.nn.forward(this.previousState);
+	
+		predicts[this.previousAction] = qValue;
+	
+		this.nn.backward(predicts);
+	
+	}
+	
+	this.currentReward = reward;
+
+};
+
+(function() {
+
+	var options = {};
+	
+	options.alpha = 0.5;
+	options.momentum = 0.1;
+	options.hiddenUnits = 10;
+	options.input = 2;
+	options.output = 4;
+	options.gamma = 0.3;
+	options.epsilon = 0.1;
+	options.isQ = true;
+	
+	var x = 0;
+	var y = 0;
+	
+	var q = new NN.QLearning(options);
+	
+	var totalReward = 0;
+	
+	for (var i = 0; i < 1000; i++) {
+	
+		var action = q.act([x, y]);
+		var reward;
+		
+		switch (action) {
+		
+			case 0: reward = -1; x += 0.01; y += 0.01; break;
+			case 1: reward = -1; x += 0.01; y -= 0.01; break;
+			case 2: reward = -1; x -= 0.01; y += 0.01; break;
+			case 3: reward = 1; x -= 0.01; y -= 0.01; break; 
+		
+		}
+		
+		totalReward += reward;
+		
+		q.learn(reward);
+	
+	}
+	
+	console.log(totalReward);
+
+})();
+
 (function() {
 
 	var options = {};
@@ -213,6 +333,7 @@ NN.FeedForwardNN.prototype.backward = function(outputs) {
 	options.hiddenUnits = 3;
 	options.input = 2;
 	options.output = 1;
+	options.isQ = false;
 
 	var nn = new NN.FeedForwardNN(options);
 
