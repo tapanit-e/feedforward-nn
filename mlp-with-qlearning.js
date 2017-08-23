@@ -33,6 +33,8 @@ NN.Helper.dtanh = function(arg) {
 
 NN.FeedForwardNN = function(args) {
 
+	// when the number of hidden units increases, learning rate has to decrease
+	// for instance, hiddenUnits > 100, alpha ~0.01
 	this.alpha = NN.Helper.getOption(args, 'alpha', 0.5);
 	this.momentum = NN.Helper.getOption(args, 'momentum', 0.1);
 	
@@ -71,6 +73,7 @@ NN.FeedForwardNN.prototype.__initNet = function() {
 		var arr = [];
 		this.weightInputs.push(arr);
 
+		// for q-learning, the initial weights must be quite small random floats
 		for (var j = 0; j < this.numOfHiddenUnits; j++)
 			this.weightInputs[i][j] = this.isQ ? 0.01 * NN.Helper.getRandom(-2, 2) : NN.Helper.getRandom(-2, 2);
 
@@ -108,6 +111,7 @@ NN.FeedForwardNN.prototype.__initNet = function() {
 
 };
 
+// predict
 NN.FeedForwardNN.prototype.forward = function(input) {
 
 	for (var i = 0; i < input.length; i++)
@@ -144,6 +148,7 @@ NN.FeedForwardNN.prototype.forward = function(input) {
 
 };
 
+// backpropagate with momentum
 NN.FeedForwardNN.prototype.backward = function(outputs) {
 
 	var outputDeltas = [],
@@ -240,6 +245,7 @@ NN.QLearning.prototype.randomIndex = function(list) {
 
 };
 
+// predict the next action based on the max q-value
 NN.QLearning.prototype.act = function(state) {
 
 	if (Math.random() < this.epsilon) {
@@ -280,6 +286,7 @@ NN.QLearning.prototype.learn = function(reward) {
 
 };
 
+/* test mlp and q-learning */
 (function() {
 
 	var options = {};
@@ -370,5 +377,22 @@ NN.QLearning.prototype.learn = function(reward) {
 	console.log(nn.forward([1, 1]));
 	console.log(nn.forward([1, 0]));
 	console.log(nn.forward([0, 0]));	
+
+})();
+/* end test */
+
+
+(function() {
+
+	if ('undefined' !== typeof module &&
+		module.exports) {
+	
+		module.exports = NN;	
+		
+	} else {
+	
+		window.mlp = NN;
+	
+	}
 
 })();
