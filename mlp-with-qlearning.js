@@ -41,8 +41,6 @@ NN.FeedForwardNN = function(args) {
 	this.numOfOutputs = NN.Helper.getOption(args, 'output', 1);
 	
 	this.isQ = NN.Helper.getOption(args, 'isQ', false);
-	
-	console.log(this.isQ);
 
 	this.activationInputs = [],
 	this.activationHiddens = [],
