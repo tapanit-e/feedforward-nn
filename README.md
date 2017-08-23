@@ -1,2 +1,2 @@
-# MLP implementation with pure javascript
-With bias and momentum
+# MLP implementation with pure JavaScript
+With additional Q-learning support
